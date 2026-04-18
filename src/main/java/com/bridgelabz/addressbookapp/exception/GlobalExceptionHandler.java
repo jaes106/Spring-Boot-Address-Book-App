@@ -4,6 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,14 +12,22 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidation(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ErrorResponse> handleValidationException(
+            MethodArgumentNotValidException ex) {
 
-        Map<String, String> errors = new HashMap<>();
+        Map<String, String> errorMap = new HashMap<>();
 
         ex.getBindingResult().getFieldErrors().forEach(error ->
-                errors.put(error.getField(), error.getDefaultMessage())
+                errorMap.put(error.getField(), error.getDefaultMessage())
         );
 
-        return ResponseEntity.badRequest().body(errors);
+        ErrorResponse response = new ErrorResponse(
+                LocalDateTime.now(),
+                400,
+                "Validation failed",
+                errorMap
+        );
+
+        return ResponseEntity.badRequest().body(response);
     }
 }
