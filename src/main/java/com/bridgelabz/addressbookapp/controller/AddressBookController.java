@@ -24,19 +24,25 @@ public class AddressBookController {
         return ResponseEntity.ok(service.getAll());
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<AddressBook> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(service.getById(id));
+    }
+
     @PostMapping
     public ResponseEntity<AddressBook> create(@Valid @RequestBody AddressBookDTO dto) {
         return ResponseEntity.status(201).body(service.create(dto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id,
-                                    @Valid @RequestBody AddressBookDTO dto) {
+    public ResponseEntity<AddressBook> update(@PathVariable Long id,
+                                              @Valid @RequestBody AddressBookDTO dto) {
+        return ResponseEntity.ok(service.update(id, dto));
+    }
 
-        AddressBook updated = service.update(id, dto);
-        if (updated == null) {
-            return ResponseEntity.status(404).body("Record not found");
-        }
-        return ResponseEntity.ok(updated);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> delete(@PathVariable Long id) {
+        service.delete(id);
+        return ResponseEntity.ok("Deleted successfully");
     }
 }
