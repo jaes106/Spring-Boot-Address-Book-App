@@ -1,8 +1,9 @@
-package com.bridgelabz.addressbookapp.contoller;
+package com.bridgelabz.addressbookapp.controller;
 
 import com.bridgelabz.addressbookapp.dto.AddressBookDTO;
 import com.bridgelabz.addressbookapp.model.AddressBook;
 import com.bridgelabz.addressbookapp.service.AddressBookService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,11 +13,8 @@ import java.util.List;
 @RequestMapping("/addressbook")
 public class AddressBookController {
 
-    private final AddressBookService service;
-
-    public AddressBookController(AddressBookService service) {
-        this.service = service;
-    }
+    @Autowired
+    private AddressBookService service;
 
     @GetMapping
     public ResponseEntity<List<AddressBook>> getAll() {
