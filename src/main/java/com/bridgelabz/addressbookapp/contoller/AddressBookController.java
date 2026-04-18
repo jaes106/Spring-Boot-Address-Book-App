@@ -1,58 +1,59 @@
 package com.bridgelabz.addressbookapp.contoller;
 
 import com.bridgelabz.addressbookapp.dto.AddressBookDTO;
+import com.bridgelabz.addressbookapp.model.AddressBook;
+import com.bridgelabz.addressbookapp.service.AddressBookService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.util.List;
 
 @RestController
 @RequestMapping("/addressbook")
 public class AddressBookController {
 
-    private final Map<Long, AddressBookDTO> data = new HashMap<>();
+    private final AddressBookService service;
+
+    public AddressBookController(AddressBookService service) {
+        this.service = service;
+    }
 
     @GetMapping
-    public ResponseEntity<List<AddressBookDTO>> getAll() {
-        return ResponseEntity.ok(new ArrayList<>(data.values()));
+    public ResponseEntity<List<AddressBook>> getAll() {
+        return ResponseEntity.ok(service.getAll());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable Long id) {
-        AddressBookDTO dto = data.get(id);
-        if (dto == null) {
+        AddressBook data = service.getById(id);
+        if (data == null) {
             return ResponseEntity.status(404).body("Record not found");
         }
-        return ResponseEntity.ok(dto);
+        return ResponseEntity.ok(data);
     }
 
     @PostMapping
-    public ResponseEntity<AddressBookDTO> create(@RequestBody AddressBookDTO dto) {
-        data.put(dto.getId(), dto);
-        return ResponseEntity.status(201).body(dto);
+    public ResponseEntity<AddressBook> create(@RequestBody AddressBookDTO dto) {
+        return ResponseEntity.status(201).body(service.create(dto));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id,
                                     @RequestBody AddressBookDTO dto) {
 
-        if (!data.containsKey(id)) {
+        AddressBook updated = service.update(id, dto);
+        if (updated == null) {
             return ResponseEntity.status(404).body("Record not found");
         }
-
-        dto.setId(id);
-        data.put(id, dto);
-        return ResponseEntity.ok(dto);
+        return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
 
-        if (!data.containsKey(id)) {
+        if (!service.delete(id)) {
             return ResponseEntity.status(404).body("Record not found");
         }
-
-        data.remove(id);
         return ResponseEntity.ok("Deleted successfully");
     }
 }
