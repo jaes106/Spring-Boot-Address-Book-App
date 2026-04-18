@@ -2,43 +2,50 @@ package com.bridgelabz.addressbookapp.service;
 
 import com.bridgelabz.addressbookapp.dto.AddressBookDTO;
 import com.bridgelabz.addressbookapp.model.AddressBook;
-import com.bridgelabz.addressbookapp.repository.AddressBookRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 public class AddressBookService {
 
-    @Autowired
-    private AddressBookRepository repository;
+    private final List<AddressBook> dataList = new ArrayList<>();
+    private final AtomicLong counter = new AtomicLong(1);
 
     public List<AddressBook> getAll() {
-        return repository.findAll();
+        return dataList;
     }
 
     public AddressBook getById(Long id) {
-        return repository.findById(id).orElse(null);
+        return dataList.stream()
+                .filter(data -> data.getId().equals(id))
+                .findFirst()
+                .orElse(null);
     }
 
     public AddressBook create(AddressBookDTO dto) {
         AddressBook model = new AddressBook(dto.getName(), dto.getCity());
-        return repository.save(model);
+        model.setId(counter.getAndIncrement());
+        dataList.add(model);
+        return model;
     }
 
     public AddressBook update(Long id, AddressBookDTO dto) {
-        AddressBook existing = repository.findById(id).orElse(null);
+        AddressBook existing = getById(id);
         if (existing == null) return null;
 
         existing.setName(dto.getName());
         existing.setCity(dto.getCity());
-        return repository.save(existing);
+        return existing;
     }
 
     public boolean delete(Long id) {
-        if (!repository.existsById(id)) return false;
-        repository.deleteById(id);
+        AddressBook existing = getById(id);
+        if (existing == null) return false;
+
+        dataList.remove(existing);
         return true;
     }
 }
