@@ -1,7 +1,14 @@
 package com.bridgelabz.addressbookapp.model;
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "address_book")
 public class AddressBook {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String name;
     private String city;
 
